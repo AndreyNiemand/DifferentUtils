@@ -1,6 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0.0)
+project(numeral_system_converter VERSION 0.1.0)
 
-project(lab1)
-add_executable(${PROJECT_NAME} "main.c")
+file(GLOB SOURCES "*.c")
+file(GLOB HEADERS "*.h")
 
-target_link_libraries(lab1 m)
+add_executable(numeral_system_converter ${SOURCES} ${HEADERS})
+
+
