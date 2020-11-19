@@ -5,7 +5,7 @@
 #include <string.h>
 #include <math.h>
 
-int NS_converti(NS_number_t num, int base)
+int nsc_converti(nsc_number_t num, int base)
 {
 	int result = 0;
 
@@ -18,7 +18,7 @@ int NS_converti(NS_number_t num, int base)
 	return result * (num.sign ? -1 : 1);
 }
 
-double NS_convertd(NS_number_t num, double base)
+double nsc_convertd(nsc_number_t num, double base)
 {
 	double result = 0;
 
@@ -31,7 +31,7 @@ double NS_convertd(NS_number_t num, double base)
 	return result * (num.sign ? -1.0 : 1.0);
 }
 
-_Dcomplex NS_convertdc(NS_number_t num, _Dcomplex base)
+_Dcomplex nsc_convertdc(nsc_number_t num, _Dcomplex base)
 {
 	_Dcomplex result = {._Val = {0, 0}};
 
@@ -51,7 +51,7 @@ _Dcomplex NS_convertdc(NS_number_t num, _Dcomplex base)
 	return result;
 }
 
-static bool NS_pasre_char(unsigned x, char* result)
+static bool nsc_pasre_char(unsigned x, char* result)
 {
 	if (0 <= x && x <= 9)
 	{
@@ -68,7 +68,7 @@ static bool NS_pasre_char(unsigned x, char* result)
 	return false;
 }
 
-static bool NS_pasre_digit(char x, unsigned* result)
+static bool nsc_pasre_digit(char x, unsigned* result)
 {	
 	if (result == NULL)
 		return false;
@@ -88,16 +88,16 @@ static bool NS_pasre_digit(char x, unsigned* result)
 	return false;
 }
 
-bool NS_try_converti (const char* str, int base, unsigned digits_count, int* result)
+bool nsc_try_converti (const char* str, int base, unsigned digits_count, int* result)
 {
-	if (NS_check(str, digits_count))
+	if (nsc_check(str, digits_count))
 	{
 		const size_t len = strlen(str);
-		NS_number_t num = {.buf = calloc(len, sizeof(*num.buf))};
+		nsc_number_t num = {.buf = calloc(len, sizeof(*num.buf))};
 
-		if(NS_parse(str, &num))
+		if(nsc_parse(str, &num))
 		{
-			*result = NS_converti(num, base);
+			*result = nsc_converti(num, base);
 
 			free(num.buf);
 			return true;
@@ -108,16 +108,16 @@ bool NS_try_converti (const char* str, int base, unsigned digits_count, int* res
 	return false;
 }
 
-bool NS_try_convertd (const char* str, double base, unsigned digits_count, double* result)
+bool nsc_try_convertd (const char* str, double base, unsigned digits_count, double* result)
 {
-	if (NS_check(str, digits_count))
+	if (nsc_check(str, digits_count))
 	{
 		const size_t len = strlen(str);
-		NS_number_t num = {.buf = calloc(len, sizeof(*num.buf))};
+		nsc_number_t num = {.buf = calloc(len, sizeof(*num.buf))};
 
-		if (NS_parse(str, &num))
+		if (nsc_parse(str, &num))
 		{
-			*result = NS_convertd(num, base);
+			*result = nsc_convertd(num, base);
 
 			free(num.buf);
 			return true;
@@ -128,16 +128,16 @@ bool NS_try_convertd (const char* str, double base, unsigned digits_count, doubl
 	return false;
 }
 
-bool NS_try_convertdc(const char* str, _Dcomplex base, unsigned digits_count, _Dcomplex* result)
+bool nsc_try_convertdc(const char* str, _Dcomplex base, unsigned digits_count, _Dcomplex* result)
 {
-	if (NS_check(str, digits_count))
+	if (nsc_check(str, digits_count))
 	{
 		const size_t len = strlen(str);
-		NS_number_t num = {.buf = calloc(len, sizeof(*num.buf))};
+		nsc_number_t num = {.buf = calloc(len, sizeof(*num.buf))};
 
-		if (NS_parse(str, &num))
+		if (nsc_parse(str, &num))
 		{
-			*result = NS_convertdc(num, base);
+			*result = nsc_convertdc(num, base);
 
 			free(num.buf);
 			return true;
@@ -148,7 +148,7 @@ bool NS_try_convertdc(const char* str, _Dcomplex base, unsigned digits_count, _D
 	return false;
 }
 
-bool NS_check(const char* str, unsigned digits_count)
+bool nsc_check(const char* str, unsigned digits_count)
 {
 	unsigned i = 0;
 	switch(str[i])
@@ -165,7 +165,7 @@ bool NS_check(const char* str, unsigned digits_count)
 		{
 			foundPoint = true;
 		} 
-		else if (!NS_pasre_digit(str[i], &val) || val >= digits_count)
+		else if (!nsc_pasre_digit(str[i], &val) || val >= digits_count)
 		{
 			return false;
 		}
@@ -173,7 +173,7 @@ bool NS_check(const char* str, unsigned digits_count)
 	return true;
 }
 
-bool NS_parse(const char* str, NS_number_t* number)
+bool nsc_parse(const char* str, nsc_number_t* number)
 {	
 	unsigned i = 0;
 
@@ -192,7 +192,7 @@ bool NS_parse(const char* str, NS_number_t* number)
 		{
 			number->point_pos = j;
 		}
-		else if (NS_pasre_digit(str[i], &digit))
+		else if (nsc_pasre_digit(str[i], &digit))
 		{
 			number->buf[j++] = digit;
 		}

@@ -12,17 +12,17 @@
 #include <complex.h>
 #include <stdbool.h>
 
-typedef struct NS_number_t {
+typedef struct nsc_number_t {
 	unsigned* buf;
 	unsigned point_pos;
 	unsigned length;
 	bool sign; // plus - false, minus - true;
-} NS_number_t;
+} nsc_number_t;
 
 /* Convert a number to numerical system using base. */
-int            NS_converti (NS_number_t, int base);
-double         NS_convertd (NS_number_t, double base);
-_Dcomplex      NS_convertdc(NS_number_t, _Dcomplex base);
+int            nsc_converti (nsc_number_t, int base);
+double         nsc_convertd (nsc_number_t, double base);
+_Dcomplex      nsc_convertdc(nsc_number_t, _Dcomplex base);
 
 /* 
     * Return converted 'str' if appropriate to 'base' and 'digits_count' in out argument 'result'.
@@ -32,9 +32,9 @@ _Dcomplex      NS_convertdc(NS_number_t, _Dcomplex base);
     *   str != NULL && str[last] == '\0',
     *   result != NULL.
 */
-bool NS_try_converti (const char* str, int base, unsigned digits_count, int* result);
-bool NS_try_convertd (const char* str, double base, unsigned digits_count, double* result);
-bool NS_try_convertdc(const char* str, _Dcomplex base, unsigned digits_count, _Dcomplex* result);
+bool nsc_try_converti (const char* str, int base, unsigned digits_count, int* result);
+bool nsc_try_convertd (const char* str, double base, unsigned digits_count, double* result);
+bool nsc_try_convertdc(const char* str, _Dcomplex base, unsigned digits_count, _Dcomplex* result);
 
 /* 
     * Checks 'str' could be converted. 
@@ -44,7 +44,7 @@ bool NS_try_convertdc(const char* str, _Dcomplex base, unsigned digits_count, _D
     *   str != NULL && str[last] == '\0',
     *   str = reg: "^[+-]?[0-9A-Z]+$".
 */
-bool NS_check(const char* str, unsigned digits_count);
+bool nsc_check(const char* str, unsigned digits_count);
 
 /* 
     * Pasres a real number only with '+' (optional) or '-' sign ahead.
@@ -54,4 +54,4 @@ bool NS_check(const char* str, unsigned digits_count);
     *   num != NULL && num->buf != NULL.
     *   num->length >= count of parsable charachters,
 */
-bool NS_parse(const char* str, NS_number_t* num);
+bool nsc_parse(const char* str, nsc_number_t* num);
