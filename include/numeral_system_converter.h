@@ -9,6 +9,9 @@
  * 
 */
 
+#ifndef NUMERAL_SYSTEM_CONVERTER_H
+#define NUMERAL_SYSTEM_CONVERTER_H
+
 #include <complex.h>
 #include <stdbool.h>
 
@@ -55,3 +58,5 @@ bool nsc_check(const char* str, unsigned digits_count);
     *   num->length >= count of parsable charachters,
 */
 bool nsc_parse(const char* str, nsc_number_t* num);
+
+#endif NUMERAL_SYSTEM_CONVERTER_H
