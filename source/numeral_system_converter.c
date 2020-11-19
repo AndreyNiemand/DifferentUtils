@@ -17,6 +17,7 @@ int NS_converti(NS_number_t num, int base)
 
 	return result * (num.sign ? -1 : 1);
 }
+
 double NS_convertd(NS_number_t num, double base)
 {
 	double result = 0;
@@ -29,6 +30,7 @@ double NS_convertd(NS_number_t num, double base)
 
 	return result * (num.sign ? -1.0 : 1.0);
 }
+
 _Dcomplex NS_convertdc(NS_number_t num, _Dcomplex base)
 {
 	_Dcomplex result = {._Val = {0, 0}};
@@ -65,6 +67,7 @@ static bool NS_pasre_char(unsigned x, char* result)
 	
 	return false;
 }
+
 static bool NS_pasre_digit(char x, unsigned* result)
 {	
 	if (result == NULL)
@@ -104,6 +107,7 @@ bool NS_try_converti (const char* str, int base, unsigned digits_count, int* res
 
 	return false;
 }
+
 bool NS_try_convertd (const char* str, double base, unsigned digits_count, double* result)
 {
 	if (NS_check(str, digits_count))
@@ -123,6 +127,7 @@ bool NS_try_convertd (const char* str, double base, unsigned digits_count, doubl
 
 	return false;
 }
+
 bool NS_try_convertdc(const char* str, _Dcomplex base, unsigned digits_count, _Dcomplex* result)
 {
 	if (NS_check(str, digits_count))
@@ -167,6 +172,7 @@ bool NS_check(const char* str, unsigned digits_count)
 	}
 	return true;
 }
+
 bool NS_parse(const char* str, NS_number_t* number)
 {	
 	unsigned i = 0;
@@ -196,18 +202,3 @@ bool NS_parse(const char* str, NS_number_t* number)
 	number->length = j;
 	return true;
 }
-
-// int main()
-// {
-// 	double num;
-// 	if (NS_try_convertd("54", 0.1, 10, &num))
-// 	{
-		
-// 		return 0;
-// 	}
-// 	//unsigned buf[10] = num.buf;
-
-// 	return 0;
-// }
-
-
