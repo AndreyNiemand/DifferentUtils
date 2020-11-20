@@ -26,12 +26,12 @@ add_test(nsc_test_i_6 test_numeral_system_converter "-2654"         "Int"   "8" 
 add_test(nsc_test_i_7 test_numeral_system_converter "5AC"           "Int"   "16"    "1452"      "16")
 add_test(nsc_test_i_8 test_numeral_system_converter "-5AC"          "Int"   "16"    "-1452"     "16")
 
-#                     test_numeral_system_converter in         {Int, Double}   base    out         digits_count
-add_test(nsc_test_d_1 test_numeral_system_converter "23.45"     "Double"       "10"    "23.45"      "10")
-add_test(nsc_test_d_2 test_numeral_system_converter "23.4542"   "Double"       "10"    "23.4542"    "10")
-add_test(nsc_test_d_3 test_numeral_system_converter ".4542"     "Double"       "10"      ".4542"    "10")
-add_test(nsc_test_d_4 test_numeral_system_converter "1.1110"    "Double"       "2"     "2.925"      "2")
-add_test(nsc_test_d_5 test_numeral_system_converter "-1.111"    "Double"       "2"     "-2.925"     "2")
+#                     test_numeral_system_converter in          {Double}   base    out         digits_count
+add_test(nsc_test_d_1 test_numeral_system_converter "23.45"     "Double"   "10"    "23.45"      "10")
+add_test(nsc_test_d_2 test_numeral_system_converter "23.4542"   "Double"   "10"    "23.4542"    "10")
+add_test(nsc_test_d_3 test_numeral_system_converter ".4542"     "Double"   "10"      ".4542"    "10")
+add_test(nsc_test_d_4 test_numeral_system_converter "1.1110"    "Double"   "2"     "1.875"      "2")
+add_test(nsc_test_d_5 test_numeral_system_converter "-1.111"    "Double"   "2"     "-1.875"     "2")
 
 #                     test_numeral_system_converter in         {DComplex}      base_r  base_i  out_r   out_i  digits_count     
 add_test(nsc_test_c_1 test_numeral_system_converter "23."      "DComplex"      "0"     "1"     "+3"    "2"    "10")
