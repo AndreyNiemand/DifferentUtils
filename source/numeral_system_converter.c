@@ -5,7 +5,7 @@
 #include <string.h>
 #include <math.h>
 
-int nsc_converti(nsc_number_t num, int base)
+int nsc_convert_fromi(int base, nsc_number_t num)
 {
 	int result = 0;
 
@@ -18,7 +18,7 @@ int nsc_converti(nsc_number_t num, int base)
 	return result * (num.sign ? -1 : 1);
 }
 
-double nsc_convertd(nsc_number_t num, double base)
+double nsc_convert_fromd(double base, nsc_number_t num)
 {
 	double result = 0;
 
@@ -31,7 +31,7 @@ double nsc_convertd(nsc_number_t num, double base)
 	return result * (num.sign ? -1.0 : 1.0);
 }
 
-_Dcomplex nsc_convertdc(nsc_number_t num, _Dcomplex base)
+_Dcomplex nsc_convert_fromdc(_Dcomplex base, nsc_number_t num)
 {
 	_Dcomplex result = {._Val = {0, 0}};
 
@@ -88,7 +88,7 @@ static bool nsc_pasre_digit(char x, unsigned* result)
 	return false;
 }
 
-bool nsc_try_converti (const char* str, int base, unsigned digits_count, int* result)
+bool nsc_try_convert_fromi (int base, const char* str, unsigned digits_count, int* result)
 {
 	if (nsc_check(str, digits_count))
 	{
@@ -97,7 +97,7 @@ bool nsc_try_converti (const char* str, int base, unsigned digits_count, int* re
 
 		if(nsc_parse(str, &num))
 		{
-			*result = nsc_converti(num, base);
+			*result = nsc_convert_fromi(base, num);
 
 			free(num.buf);
 			return true;
@@ -108,7 +108,7 @@ bool nsc_try_converti (const char* str, int base, unsigned digits_count, int* re
 	return false;
 }
 
-bool nsc_try_convertd (const char* str, double base, unsigned digits_count, double* result)
+bool nsc_try_convert_fromd (double base, const char* str, unsigned digits_count, double* result)
 {
 	if (nsc_check(str, digits_count))
 	{
@@ -117,7 +117,7 @@ bool nsc_try_convertd (const char* str, double base, unsigned digits_count, doub
 
 		if (nsc_parse(str, &num))
 		{
-			*result = nsc_convertd(num, base);
+			*result = nsc_convert_fromd(base, num);
 
 			free(num.buf);
 			return true;
@@ -128,7 +128,7 @@ bool nsc_try_convertd (const char* str, double base, unsigned digits_count, doub
 	return false;
 }
 
-bool nsc_try_convertdc(const char* str, _Dcomplex base, unsigned digits_count, _Dcomplex* result)
+bool nsc_try_convert_fromdc(_Dcomplex base, const char* str, unsigned digits_count, _Dcomplex* result)
 {
 	if (nsc_check(str, digits_count))
 	{
@@ -137,7 +137,7 @@ bool nsc_try_convertdc(const char* str, _Dcomplex base, unsigned digits_count, _
 
 		if (nsc_parse(str, &num))
 		{
-			*result = nsc_convertdc(num, base);
+			*result = nsc_convert_fromdc(base, num);
 
 			free(num.buf);
 			return true;

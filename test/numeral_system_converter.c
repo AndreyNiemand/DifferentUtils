@@ -92,7 +92,7 @@ int main(int argc, const char** argv)
         case Int: 
         {
             int out;
-            if (nsc_try_converti(test.in, test.base_i, test.digits_count, &out))
+            if (nsc_try_convert_fromi(test.base_i, test.in, test.digits_count, &out))
             {
                 //printf("%s(%d) -> %d(10): ", test.in, test.base_i, out);
                 if (out == test.out_i)
@@ -108,7 +108,7 @@ int main(int argc, const char** argv)
         case Double:
         {
             double out;
-            if (nsc_try_convertd(test.in, test.base_d, test.digits_count, &out))
+            if (nsc_try_convert_fromd(test.base_d, test.in, test.digits_count, &out))
             {
                 //printf("%s(%.2lf) -> %.2lf(10): ", test.in, test.base_d, out);
                 if (fabs(out - test.out_d) < epsilon)
@@ -124,7 +124,7 @@ int main(int argc, const char** argv)
         case DComplex:
         {
             _Dcomplex out;
-            if (nsc_try_convertdc(test.in, test.base_dc, test.digits_count, &out))
+            if (nsc_try_convert_fromdc(test.base_dc, test.in, test.digits_count, &out))
             {
                 //printf("%s(%.2lf%+.2lfi) -> (%.2lf%+.2lfi)(10): ", test.in, creal(test.base_dc), cimag(test.base_dc), creal(out), cimag(out));
 

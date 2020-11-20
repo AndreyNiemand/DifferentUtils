@@ -22,22 +22,22 @@ typedef struct nsc_number_t {
 	bool sign; // plus - false, minus - true;
 } nsc_number_t;
 
-/* Convert a number to numerical system using base. */
-int            nsc_converti (nsc_number_t, int base);
-double         nsc_convertd (nsc_number_t, double base);
-_Dcomplex      nsc_convertdc(nsc_number_t, _Dcomplex base);
+/* Converts a number from 'base' numerical system. */
+int            nsc_convert_fromi (int base,         nsc_number_t);
+double         nsc_convert_fromd (double base,      nsc_number_t);
+_Dcomplex      nsc_convert_fromdc( _Dcomplex base,  nsc_number_t);
 
 /* 
-    * Return converted 'str' if appropriate to 'base' and 'digits_count' in out argument 'result'.
-    * Otherwise return false.
+    * Return converted 'str' from 'base' numerical system if appropriate to 'base' and 'digits_count' in out-argument 'result'.
+    *   Otherwise false.
     * 
     * Conditions:
     *   str != NULL && str[last] == '\0',
     *   result != NULL.
 */
-bool nsc_try_converti (const char* str, int base, unsigned digits_count, int* result);
-bool nsc_try_convertd (const char* str, double base, unsigned digits_count, double* result);
-bool nsc_try_convertdc(const char* str, _Dcomplex base, unsigned digits_count, _Dcomplex* result);
+bool nsc_try_convert_fromi (      int base, const char* str, unsigned digits_count,       int* result);
+bool nsc_try_convert_fromd (   double base, const char* str, unsigned digits_count,    double* result);
+bool nsc_try_convert_fromdc(_Dcomplex base, const char* str, unsigned digits_count, _Dcomplex* result);
 
 /* 
     * Checks 'str' could be converted. 
