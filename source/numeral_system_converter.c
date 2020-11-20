@@ -176,6 +176,7 @@ bool nsc_check(const char* str, unsigned digits_count)
 bool nsc_parse(const char* str, nsc_number_t* number)
 {	
 	unsigned i = 0;
+	bool found_point = false;
 
 	if (str[i] != 0)
 		switch(str[i])
@@ -190,6 +191,7 @@ bool nsc_parse(const char* str, nsc_number_t* number)
 		unsigned digit;
 		if (str[i] == '.')
 		{
+			found_point = true;
 			number->point_pos = j;
 		}
 		else if (nsc_pasre_digit(str[i], &digit))
@@ -200,5 +202,9 @@ bool nsc_parse(const char* str, nsc_number_t* number)
 	}
 
 	number->length = j;
+
+	if(!found_point) 
+		number->point_pos = number->length;
+
 	return true;
 }
