@@ -23,9 +23,13 @@ typedef struct nsc_number_t {
 } nsc_number_t;
 
 /* Converts a number from 'base' numerical system. */
-int            nsc_convert_fromi (int base,         nsc_number_t);
-double         nsc_convert_fromd (double base,      nsc_number_t);
+int            nsc_convert_fromi (int        base,  nsc_number_t);
+double         nsc_convert_fromd (double     base,  nsc_number_t);
 _Dcomplex      nsc_convert_fromdc( _Dcomplex base,  nsc_number_t);
+
+/* Converts 'num' to 'base' numerical system. */
+nsc_number_t     nsc_convert_toi (int    base,    int num);
+nsc_number_t     nsc_convert_toid(int    base, double num);
 
 /* 
     * Return converted 'str' from 'base' numerical system if appropriate to 'base' and 'digits_count' in out-argument 'result'.

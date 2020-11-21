@@ -4,6 +4,141 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <limits.h>
+#include <assert.h>
+
+nsc_number_t nsc_convert_toi(int base, int num)
+{
+	nsc_number_t r = {.sign = (num < 0)};
+
+	unsigned buf[sizeof(num) * 8U - 1U];
+	unsigned i = 0;
+
+	do {
+		buf[i++] = num % base;
+	} while ((num /= base));
+	
+	r.length = i;
+	r.buf = calloc(i, sizeof(*r.buf));
+
+	for (i = 0; i*2 < r.length; ++i)
+	{
+		const unsigned j = r.length - (i+1U);
+		r.buf[i] = buf[j];
+		r.buf[j] = buf[i];
+	}
+
+	return r;
+}
+
+nsc_number_t nsc_convert_toid(const int base, const double num)
+{
+	nsc_number_t r = { .buf = NULL };
+	if (base == 0)
+	{
+		return r;
+	}
+
+	const double epsilon = 1e-7;
+
+	if (base > 0)
+	{
+		r.sign = (num < 0);
+
+		unsigned whole;
+		double 	 fract;
+		{
+			double  whole_temp;
+					fract = modf(num, &whole_temp);
+					whole = (unsigned) fabs(whole_temp);
+		}
+
+		unsigned whole_buf [sizeof(whole) * 8U - 1U];
+		unsigned fract_buf [sizeof(fract) * 8U - 1U];
+
+		unsigned whole_i = 0;
+		assert(base != 1 && base != -1);
+		do {
+			whole_buf[whole_i++] = whole % base;
+		} while ((whole /= base));
+
+		unsigned fract_i;
+		for(fract_i = 0; fract_i < sizeof(fract) * 8U - 1U && fabs(fract) > epsilon; fract_i++) 
+		{
+			double temp;
+			fract = modf(fract * base, &temp);
+			fract_buf[fract_i] = (unsigned)temp;
+		}
+
+		r.point_pos = whole_i;
+		r.length = whole_i + fract_i;
+		r.buf = calloc(r.length, sizeof(*r.buf));
+
+		for (unsigned i = 0; i*2 < whole_i; ++i)
+		{
+			const unsigned j = r.point_pos - (i+1U);
+			r.buf[i] = whole_buf[j];
+			r.buf[j] = whole_buf[i];
+		}
+
+		for (unsigned i = whole_i; i < fract_i; ++i)
+		{
+			r.buf[i] = fract_buf[i - whole_i];
+		}
+	}
+	else if (base < 0)
+	{
+		double num_whole, num_fract = modf(num, &num_whole);
+
+		unsigned i = 0, buf [sizeof(num_whole) * 8U - 1U];
+		for (double whole = num_whole; (i < sizeof(num_whole) * 8U - 1U) && fabs(whole) > epsilon; ++i)
+		{
+			double fract = modf(whole / base, &whole);
+
+			if(fract > 0)
+			{	
+				whole++;
+				fract--;
+			}
+
+			assert(round(base * fract) > 0.0 || fabs(round(base * fract)) < epsilon);
+			buf[i] = (unsigned) round(base * fract);
+		}
+
+		r.point_pos = i;
+
+		for (double whole, fract = num_fract; (i < sizeof(num_fract) * 8U - 1U) && fabs(fract) > epsilon; ++i)
+		{
+			fract = modf(fract * base, &whole);
+
+			if (fract > 0)
+			{
+				whole++;
+				fract--;
+			}
+
+			assert(whole > 0.0 || fabs(whole) < epsilon);
+			buf[i] = (unsigned) whole;
+		}
+
+		r.length = i;
+		r.buf = calloc(r.length, sizeof(*r.buf));
+
+		for (i = 0; i < r.point_pos; ++i)
+		{
+			const unsigned j = r.point_pos - (i+1U);
+			r.buf[i] = buf[j];
+			r.buf[j] = buf[i];
+		}
+
+		for (i = r.point_pos; i < r.length; ++i)
+		{
+			r.buf[i] = buf[i];
+		}
+	}
+
+	return r;
+}
 
 int nsc_convert_fromi(int base, nsc_number_t num)
 {
