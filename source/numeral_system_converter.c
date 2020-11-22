@@ -9,6 +9,8 @@
 
 nsc_number_t nsc_convert_toi(int base, int num)
 {
+	assert(base != 1 && base != -1);
+
 	nsc_number_t r = {.sign = (num < 0)};
 
 	unsigned buf[sizeof(num) * 8U - 1U];
@@ -57,7 +59,6 @@ nsc_number_t nsc_convert_toid(const int base, const double num)
 		unsigned fract_buf [sizeof(fract) * 8U - 1U];
 
 		unsigned whole_i = 0;
-		assert(base != 1 && base != -1);
 		do {
 			whole_buf[whole_i++] = whole % base;
 		} while ((whole /= base));
@@ -142,6 +143,8 @@ nsc_number_t nsc_convert_toid(const int base, const double num)
 
 int nsc_convert_fromi(int base, nsc_number_t num)
 {
+	assert(num.buf != NULL);
+
 	int result = 0;
 
 	for (unsigned i = 0; i < num.length; ++i)
@@ -155,6 +158,8 @@ int nsc_convert_fromi(int base, nsc_number_t num)
 
 double nsc_convert_fromd(double base, nsc_number_t num)
 {
+	assert(num.buf != NULL);
+
 	double result = 0;
 
 	for (unsigned i = 0; i < num.length; ++i)
@@ -168,6 +173,8 @@ double nsc_convert_fromd(double base, nsc_number_t num)
 
 _Dcomplex nsc_convert_fromdc(_Dcomplex base, nsc_number_t num)
 {
+	assert(num.buf != NULL);
+
 	_Dcomplex result = {._Val = {0, 0}};
 
 	for (unsigned i = 0; i < num.length; ++i)
@@ -188,6 +195,8 @@ _Dcomplex nsc_convert_fromdc(_Dcomplex base, nsc_number_t num)
 
 static bool nsc_pasre_char(unsigned x, char* result)
 {
+	assert(result != NULL);
+
 	if (0 <= x && x <= 9)
 	{
 		*result = (char)x + '0';
@@ -205,6 +214,8 @@ static bool nsc_pasre_char(unsigned x, char* result)
 
 static bool nsc_pasre_digit(char x, unsigned* result)
 {	
+	assert(result != NULL);	
+
 	if (result == NULL)
 		return false;
 
@@ -223,8 +234,12 @@ static bool nsc_pasre_digit(char x, unsigned* result)
 	return false;
 }
 
-bool nsc_try_convert_fromi (int base, const char* str, unsigned digits_count, int* result)
+bool nsc_try_convert_fromi(int base, const char* str, unsigned digits_count, int* result)
 {
+	assert(result != NULL);
+	assert(str != NULL);
+	assert(str[strnlen_s(str, 1024U)] == '\0');
+
 	if (nsc_check(str, digits_count))
 	{
 		const size_t len = strlen(str);
@@ -245,6 +260,10 @@ bool nsc_try_convert_fromi (int base, const char* str, unsigned digits_count, in
 
 bool nsc_try_convert_fromd (double base, const char* str, unsigned digits_count, double* result)
 {
+	assert(result != NULL);
+	assert(str != NULL);
+	assert(str[strnlen_s(str, 1024U)] == '\0');	
+
 	if (nsc_check(str, digits_count))
 	{
 		const size_t len = strlen(str);
@@ -265,6 +284,10 @@ bool nsc_try_convert_fromd (double base, const char* str, unsigned digits_count,
 
 bool nsc_try_convert_fromdc(_Dcomplex base, const char* str, unsigned digits_count, _Dcomplex* result)
 {
+	assert(result != NULL);
+	assert(str != NULL);
+	assert(str[strnlen_s(str, 1024U)] == '\0');
+
 	if (nsc_check(str, digits_count))
 	{
 		const size_t len = strlen(str);
@@ -285,6 +308,8 @@ bool nsc_try_convert_fromdc(_Dcomplex base, const char* str, unsigned digits_cou
 
 bool nsc_check(const char* str, unsigned digits_count)
 {
+	assert(str != NULL);
+
 	unsigned i = 0;
 	switch(str[i])
 	{
@@ -310,6 +335,11 @@ bool nsc_check(const char* str, unsigned digits_count)
 
 bool nsc_parse(const char* str, nsc_number_t* number)
 {	
+	assert(str != NULL);
+	assert(str[strnlen_s(str, 1024U)] == '\0');
+	assert(number != NULL);
+	assert(number->buf != NULL);
+
 	unsigned i = 0;
 	bool found_point = false;
 
