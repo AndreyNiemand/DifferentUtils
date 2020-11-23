@@ -33,7 +33,7 @@ nsc_number_t nsc_convert_toi(int base, int num)
 	return r;
 }
 
-nsc_number_t nsc_convert_toid(const int base, const double num)
+nsc_number_t nsc_convert_toid(const int base, double num)
 {
 	nsc_number_t r = { .buf = NULL };
 	if (base == 0)
@@ -45,46 +45,51 @@ nsc_number_t nsc_convert_toid(const int base, const double num)
 
 	if (base > 0)
 	{
-		r.sign = (num < 0);
+		if((r.sign = (num < 0)))
+		{
+			num = -num;
+		}
 
 		unsigned whole;
 		double 	 fract;
 		{
-			double  whole_temp;
-					fract = modf(num, &whole_temp);
-					whole = (unsigned) fabs(whole_temp);
+			double  temp;
+			fract = modf(num, &temp);
+			whole = (unsigned) fabs(temp);
 		}
 
-		unsigned whole_buf [sizeof(whole) * 8U - 1U];
-		unsigned fract_buf [sizeof(fract) * 8U - 1U];
+		unsigned buf[sizeof(num) * 8U - 1U];
 
-		unsigned whole_i = 0;
+		unsigned i = 0;
 		do {
-			whole_buf[whole_i++] = whole % base;
+			buf[i++] = whole % base;
+			assert(i < sizeof(buf)/sizeof(*buf));
 		} while ((whole /= base));
+		
+		r.point_pos = i;
 
-		unsigned fract_i;
-		for(fract_i = 0; fract_i < sizeof(fract) * 8U - 1U && fabs(fract) > epsilon; fract_i++) 
+		for(; i < sizeof(buf)/sizeof(*buf) && fabs(fract) > epsilon; i++) 
 		{
 			double temp;
 			fract = modf(fract * base, &temp);
-			fract_buf[fract_i] = (unsigned)temp;
+			buf[i] = (unsigned)temp;
+
+			assert(temp > 0 || fabs(temp) < epsilon);
 		}
 
-		r.point_pos = whole_i;
-		r.length = whole_i + fract_i;
+		r.length = i;
 		r.buf = calloc(r.length, sizeof(*r.buf));
 
-		for (unsigned i = 0; i*2 < whole_i; ++i)
+		for (unsigned i = 0; i < r.point_pos; ++i)
 		{
 			const unsigned j = r.point_pos - (i+1U);
-			r.buf[i] = whole_buf[j];
-			r.buf[j] = whole_buf[i];
+			r.buf[i] = buf[j];
+			r.buf[j] = buf[i];
 		}
 
-		for (unsigned i = whole_i; i < fract_i; ++i)
+		for (unsigned i = r.point_pos; i < r.length; ++i)
 		{
-			r.buf[i] = fract_buf[i - whole_i];
+			r.buf[i] = buf[i];
 		}
 	}
 	else if (base < 0)
@@ -203,9 +208,9 @@ static bool nsc_pasre_char(unsigned x, char* result)
 		return true;
 	}
 	
-	if (0xA <= x && x <= 0xA + (int)'Z')
+	if (0xA <= x && x <= 0xA + (int)('Z' - 'A'))
 	{
-		*result = (char)x + 'A';
+		*result = 'A' + (x - 0xA);
 		return true;
 	}
 	
@@ -373,3 +378,81 @@ bool nsc_parse(const char* str, nsc_number_t* number)
 
 	return true;
 }
+
+char* nsc_to_string(nsc_number_t num, char *buf)
+{
+	assert(buf != NULL);
+	assert(num.buf != NULL);
+	unsigned i = 0;
+
+	if (num.sign)
+	{
+		buf[i++] = '-';
+		num.point_pos++;
+	}
+
+	for (unsigned j = 0; j < num.length; ++i)
+	{
+		if (i == num.point_pos)
+		{
+			buf[i] = '.';
+		}
+		else 
+		{
+			char r;
+			bool is_parsed = nsc_pasre_char(num.buf[j++], &r);
+			assert(is_parsed);
+			buf[i] = r;
+		}
+	}
+
+	buf[i] = '\0';
+	
+	return buf;
+}
+
+#ifdef NSC_EXECUTABLE
+
+#include <stdio.h>
+
+int main(int argc, char** argv)
+{
+	const double epsilon = 1e-7;
+
+	if(argc != 4)
+	{
+		fprintf(stderr, "Error: there must be 3 arguments: \n%s number:Double from_radix:Double to_radix:Int\n", argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	const char* const in_num = argv[1];
+	const double from_radix  = atof(argv[2]);
+	const int    to_radix    = atoi(argv[3]);
+
+	if (fabs(from_radix) < epsilon)
+	{
+		fprintf(stderr, "Error: the base radix '%f' is so little.", from_radix);
+		return EXIT_FAILURE;
+	}
+	if (to_radix == 0)
+	{
+		fprintf(stderr, "Error: the radix '%d' must be not 0.", to_radix);
+		return EXIT_FAILURE;
+	}
+
+	double result; 
+
+	double _, fract = fabs(modf(from_radix, &_)) + fabs(modf(to_radix, &_));
+	unsigned digits_count = fabs(fract) < epsilon ? (unsigned) fabs(from_radix) : 10U;
+
+	nsc_try_convert_fromd(from_radix, in_num, digits_count, &result);
+	nsc_number_t n = nsc_convert_toid(to_radix, result);
+				
+	char buf[1024];
+	printf("%s", nsc_to_string(n, buf));
+	free(n.buf);
+
+	return EXIT_SUCCESS;
+}
+
+#endif

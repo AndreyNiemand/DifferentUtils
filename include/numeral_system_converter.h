@@ -63,4 +63,14 @@ bool nsc_check(const char* str, unsigned digits_count);
 */
 bool nsc_parse(const char* str, nsc_number_t* num);
 
+/*
+    * Converts number into string using and returning 'buf' with finish character '\0'.
+    * 
+    * Conditions:
+    *   buf != NULL,
+    *   number.buf != NULL,
+    *   number.length + (1 if number has point) + (1 if number has sign) < buf.length.
+*/
+char* nsc_to_string(nsc_number_t, char *buf);
+
 #endif NUMERAL_SYSTEM_CONVERTER_H

@@ -1,18 +1,33 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(AndreysUtils VERSION 0.1.0)
 
-file(GLOB SOURCES "source/*.c")
-file(GLOB HEADERS "include/*.h")
+option(NSC_EXECUTABLE "Build executable file."  ON)
+option(NSC_LIBRARY    "Build library file."     ON)
 
-add_library(numeral_system_converter ${SOURCES} ${HEADERS})
+file(GLOB NSC_SOURCES "source/*.c")
+file(GLOB NSC_HEADERS "include/*.h")
 
-target_include_directories(numeral_system_converter PUBLIC "${PROJECT_SOURCE_DIR}/include")
+if (NSC_EXECUTABLE)
+    add_executable(numeral_system_converter ${NSC_SOURCES} ${NSC_HEADERS})
+    target_include_directories(numeral_system_converter PUBLIC "${PROJECT_SOURCE_DIR}/include")
+    target_compile_definitions(numeral_system_converter PUBLIC -DNSC_EXECUTABLE)
+    set_target_properties(numeral_system_converter PROPERTIES OUTPUT_NAME nsc)
+endif()
+unset(NSC_EXECUTABLE CACHE)
 
-file(GLOB TEST_SOURCES "test/*.c")
+if (NSC_LIBRARY)
+    add_library(numeral_system_converter_lib ${NSC_SOURCES} ${NSC_HEADERS})
+    target_include_directories(numeral_system_converter_lib PUBLIC "${PROJECT_SOURCE_DIR}/include")
+    target_compile_definitions(numeral_system_converter_lib PUBLIC -DNSC_LIBRARY)
+    set_target_properties(numeral_system_converter_lib PROPERTIES OUTPUT_NAME nsc)
+endif()
+unset(NSC_LIBRARY CACHE)
 
-add_executable(test_numeral_system_converter ${TEST_SOURCES} ${HEADERS})
+file(GLOB NSC_TEST_SOURCES "test/*.c")
 
-target_link_libraries(test_numeral_system_converter numeral_system_converter)
+add_executable(test_numeral_system_converter ${NSC_TEST_SOURCES} ${NSC_SOURCES} ${NSC_HEADERS})
+target_compile_definitions(test_numeral_system_converter PUBLIC -DNSC_LIBRARY)
+target_include_directories(test_numeral_system_converter PUBLIC "${PROJECT_SOURCE_DIR}/include")
 
 enable_testing()
 
