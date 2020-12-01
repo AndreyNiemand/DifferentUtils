@@ -15,12 +15,12 @@
 #include <complex.h>
 #include <stdbool.h>
 
-#if WIN32
-    #if NSC_SHARED_LIBRARY
+#ifdef WIN32
+    #ifdef NSC_SHARED_LIBRARY
         #define NSC_DECLARE(result_t, name, ...)                     \
             __declspec(dllexport) result_t   name     (__VA_ARGS__); 
 
-    #elif !NSC_STATIC_LIBRARY && !NSC_EXECUTABLE
+    #elif !defined(NSC_STATIC_LIBRARY) && !defined(NSC_EXECUTABLE)
         #define NSC_DECLARE(result_t, name, ...)                     \
             __declspec(dllimport) result_t   name     (__VA_ARGS__); \
             typedef               result_t (*name##_t)(__VA_ARGS__);

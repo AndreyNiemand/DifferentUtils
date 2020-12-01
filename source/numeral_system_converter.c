@@ -7,7 +7,7 @@
 #include <limits.h>
 #include <assert.h>
 
-#if WIN32
+#ifdef WIN32
     #if NSC_SHARED_LIBRARY
 		#define NSC_IMPLEMENT __declspec(dllexport)
 	#endif
