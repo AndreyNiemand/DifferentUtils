@@ -7,7 +7,17 @@
 #include <limits.h>
 #include <assert.h>
 
-nsc_number_t nsc_convert_toi(int base, int num)
+#if WIN32
+    #if NSC_SHARED_LIBRARY
+		#define NSC_IMPLEMENT __declspec(dllexport)
+	#endif
+#endif
+
+#ifndef NSC_IMPLEMENT
+#define NSC_IMPLEMENT
+#endif
+
+NSC_IMPLEMENT nsc_number_t nsc_convert_toi(int base, int num)
 {
 	assert(base != 1 && base != -1);
 
@@ -33,7 +43,7 @@ nsc_number_t nsc_convert_toi(int base, int num)
 	return r;
 }
 
-nsc_number_t nsc_convert_toid(const int base, double num)
+NSC_IMPLEMENT nsc_number_t nsc_convert_toid(const int base, double num)
 {
 	nsc_number_t r = { .buf = NULL };
 	if (base == 0)
@@ -146,7 +156,7 @@ nsc_number_t nsc_convert_toid(const int base, double num)
 	return r;
 }
 
-int nsc_convert_fromi(int base, nsc_number_t num)
+NSC_IMPLEMENT int nsc_convert_fromi(int base, nsc_number_t num)
 {
 	assert(num.buf != NULL);
 
@@ -161,7 +171,7 @@ int nsc_convert_fromi(int base, nsc_number_t num)
 	return result * (num.sign ? -1 : 1);
 }
 
-double nsc_convert_fromd(double base, nsc_number_t num)
+NSC_IMPLEMENT double nsc_convert_fromd(double base, nsc_number_t num)
 {
 	assert(num.buf != NULL);
 
@@ -176,7 +186,7 @@ double nsc_convert_fromd(double base, nsc_number_t num)
 	return result * (num.sign ? -1.0 : 1.0);
 }
 
-_Dcomplex nsc_convert_fromdc(_Dcomplex base, nsc_number_t num)
+NSC_IMPLEMENT _Dcomplex nsc_convert_fromdc(_Dcomplex base, nsc_number_t num)
 {
 	assert(num.buf != NULL);
 
@@ -239,7 +249,7 @@ static bool nsc_pasre_digit(char x, unsigned* result)
 	return false;
 }
 
-bool nsc_try_convert_fromi(int base, const char* str, unsigned digits_count, int* result)
+NSC_IMPLEMENT bool nsc_try_convert_fromi(int base, const char* str, unsigned digits_count, int* result)
 {
 	assert(result != NULL);
 	assert(str != NULL);
@@ -263,7 +273,7 @@ bool nsc_try_convert_fromi(int base, const char* str, unsigned digits_count, int
 	return false;
 }
 
-bool nsc_try_convert_fromd (double base, const char* str, unsigned digits_count, double* result)
+NSC_IMPLEMENT bool nsc_try_convert_fromd (double base, const char* str, unsigned digits_count, double* result)
 {
 	assert(result != NULL);
 	assert(str != NULL);
@@ -287,7 +297,7 @@ bool nsc_try_convert_fromd (double base, const char* str, unsigned digits_count,
 	return false;
 }
 
-bool nsc_try_convert_fromdc(_Dcomplex base, const char* str, unsigned digits_count, _Dcomplex* result)
+NSC_IMPLEMENT bool nsc_try_convert_fromdc(_Dcomplex base, const char* str, unsigned digits_count, _Dcomplex* result)
 {
 	assert(result != NULL);
 	assert(str != NULL);
@@ -311,7 +321,7 @@ bool nsc_try_convert_fromdc(_Dcomplex base, const char* str, unsigned digits_cou
 	return false;
 }
 
-bool nsc_check(const char* str, unsigned digits_count)
+NSC_IMPLEMENT bool nsc_check(const char* str, unsigned digits_count)
 {
 	assert(str != NULL);
 
@@ -338,7 +348,7 @@ bool nsc_check(const char* str, unsigned digits_count)
 	return true;
 }
 
-bool nsc_parse(const char* str, nsc_number_t* number)
+NSC_IMPLEMENT bool nsc_parse(const char* str, nsc_number_t* number)
 {	
 	assert(str != NULL);
 	assert(str[strnlen_s(str, 1024U)] == '\0');
@@ -379,7 +389,7 @@ bool nsc_parse(const char* str, nsc_number_t* number)
 	return true;
 }
 
-char* nsc_to_string(nsc_number_t num, char *buf)
+NSC_IMPLEMENT char* nsc_to_string(nsc_number_t num, char *buf)
 {
 	assert(buf != NULL);
 	assert(num.buf != NULL);
