@@ -26,6 +26,8 @@ NSC_IMPLEMENT nsc_number_t nsc_convert_toi(int base, int num)
 	unsigned buf[sizeof(num) * 8U - 1U];
 	unsigned i = 0;
 
+	num = abs(num);
+
 	do {
 		buf[i++] = num % base;
 	} while ((num /= base));
