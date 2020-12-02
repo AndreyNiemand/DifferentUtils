@@ -31,6 +31,7 @@ NSC_IMPLEMENT nsc_number_t nsc_convert_toi(int base, int num)
 	} while ((num /= base));
 	
 	r.length = i;
+	r.point_pos = i;
 	r.buf = calloc(i, sizeof(*r.buf));
 
 	for (i = 0; i*2 < r.length; ++i)
@@ -393,6 +394,7 @@ NSC_IMPLEMENT char* nsc_to_string(nsc_number_t num, char *buf)
 {
 	assert(buf != NULL);
 	assert(num.buf != NULL);
+	
 	unsigned i = 0;
 
 	if (num.sign)
