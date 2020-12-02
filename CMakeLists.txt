@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(AndreysUtils VERSION 0.1.0)
 
-option(NSC_EXECUTABLE "Build executable file."  ON)
+option(NSC_EXECUTABLE "Build executable file."  OFF)
 option(NSC_LIBRARY    "Build library file."     ON)
 
 file(GLOB NSC_SOURCES "source/*.c")
