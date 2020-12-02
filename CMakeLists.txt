@@ -1,28 +1,27 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(AndreysUtils VERSION 0.1.0)
 
-option(NSC_EXECUTABLE "Build executable file."  OFF)
+option(NSC_EXECUTABLE "Build executable file." ON)
 
 file(GLOB NSC_SOURCES "source/*.c")
 file(GLOB NSC_HEADERS "include/*.h")
 
 if (NSC_EXECUTABLE)
     add_executable(numeral_system_converter ${NSC_SOURCES} ${NSC_HEADERS})
-    set_target_properties(numeral_system_converter PROPERTIES OUTPUT_NAME nsc)
-    target_include_directories(numeral_system_converter PUBLIC "${PROJECT_SOURCE_DIR}/include")
     target_compile_definitions(numeral_system_converter PUBLIC -DNSC_EXECUTABLE)
-endif()
-
-if ($<NOT:NSC_EXECUTABLE>)
-    add_library(numeral_system_converter_lib ${NSC_SOURCES} ${NSC_HEADERS})
-    set_target_properties(numeral_system_converter_lib PROPERTIES OUTPUT_NAME nsc)
-    target_include_directories(numeral_system_converter_lib PUBLIC "${PROJECT_SOURCE_DIR}/include")
+else()
+    add_library(numeral_system_converter ${NSC_SOURCES} ${NSC_HEADERS})
+    target_compile_definitions(numeral_system_converter PUBLIC -DNSC_STATIC_LIBRARY)
     if (BUILD_SHARED_LIBS)
-        target_compile_definitions(numeral_system_converter_lib PUBLIC -DNSC_SHARED_LIBRARY)
+        target_compile_definitions(numeral_system_converter PUBLIC -DNSC_SHARED_LIBRARY)
     else()
-        target_compile_definitions(numeral_system_converter_lib PUBLIC -DNSC_STATIC_LIBRARY)
+        target_compile_definitions(numeral_system_converter PUBLIC -DNSC_STATIC_LIBRARY)
     endif()
 endif()
+
+set_target_properties(numeral_system_converter PROPERTIES OUTPUT_NAME nsc)
+target_include_directories(numeral_system_converter PUBLIC "${PROJECT_SOURCE_DIR}/include")
+
 unset(NSC_EXECUTABLE CACHE)
 
 if(OFF) #temporary crutsch.
