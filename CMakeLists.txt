@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(AndreysUtils VERSION 0.1.0)
 
-option(NSC_EXECUTABLE "Build executable file."  ON)
+option(NSC_EXECUTABLE "Build executable file."  OFF)
 
 file(GLOB NSC_SOURCES "source/*.c")
 file(GLOB NSC_HEADERS "include/*.h")
@@ -12,7 +12,6 @@ if (NSC_EXECUTABLE)
     target_include_directories(numeral_system_converter PUBLIC "${PROJECT_SOURCE_DIR}/include")
     target_compile_definitions(numeral_system_converter PUBLIC -DNSC_EXECUTABLE)
 endif()
-unset(NSC_EXECUTABLE CACHE)
 
 if ($<NOT:NSC_EXECUTABLE>)
     add_library(numeral_system_converter_lib ${NSC_SOURCES} ${NSC_HEADERS})
@@ -24,6 +23,7 @@ if ($<NOT:NSC_EXECUTABLE>)
         target_compile_definitions(numeral_system_converter_lib PUBLIC -DNSC_STATIC_LIBRARY)
     endif()
 endif()
+unset(NSC_EXECUTABLE CACHE)
 
 if(OFF) #temporary crutsch.
     file(GLOB NSC_TEST_SOURCES "test/*.c")
