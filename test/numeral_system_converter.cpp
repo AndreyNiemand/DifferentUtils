@@ -4,7 +4,6 @@
 
 using std::operator""s;
 
-
 class test_numeral_system_converter: public QObject
 {
     Q_OBJECT
