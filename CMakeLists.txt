@@ -1,70 +1,66 @@
-cmake_minimum_required(VERSION 3.0.0)
-project(AndreysUtils VERSION 0.1.0)
+cmake_minimum_required(VERSION 3.14.1)
+project(numeral_system_converter VERSION 0.1.0)
 
-option(NSC_EXECUTABLE "Build executable file." ON)
+option(NSC_CXX_INTERFACE_SUPPORT "Add C++ interface." ON)
+option(NSC_TEST        "Build tests." OFF)
+option(NSC_EXECUTABLE  "Build executable file." NOT<${NSC_TEST}>)
 
-file(GLOB NSC_SOURCES "source/*.c")
-file(GLOB NSC_HEADERS "include/*.h")
+set(NSC_HEADERS "include/numeral_system_converter.h")
 
-if (NSC_EXECUTABLE)
-    add_executable(numeral_system_converter ${NSC_SOURCES} ${NSC_HEADERS})
-    target_compile_definitions(numeral_system_converter PUBLIC -DNSC_EXECUTABLE)
-else()
+if (NOT NSC_EXECUTABLE)
+    set(NSC_SOURCES "source/numeral_system_converter.c")
+
     add_library(numeral_system_converter ${NSC_SOURCES} ${NSC_HEADERS})
-    target_compile_definitions(numeral_system_converter PUBLIC -DNSC_STATIC_LIBRARY)
+
     if (BUILD_SHARED_LIBS)
-        target_compile_definitions(numeral_system_converter PUBLIC -DNSC_SHARED_LIBRARY)
+        set(NSC_BUILD_TYPE NSC_SHARED_LIBRARY)
     else()
-        target_compile_definitions(numeral_system_converter PUBLIC -DNSC_STATIC_LIBRARY)
+        set(NSC_BUILD_TYPE NSC_STATIC_LIBRARY)
     endif()
+else()
+    add_executable(${PROJECT_NAME} ${NSC_SOURCES} ${NSC_HEADERS})
+    set(NSC_BUILD_TYPE NSC_EXECUTABLE)
 endif()
 
-set_target_properties(numeral_system_converter PROPERTIES OUTPUT_NAME nsc)
-target_include_directories(numeral_system_converter PUBLIC "${PROJECT_SOURCE_DIR}/include")
+target_compile_definitions(${PROJECT_NAME} PRIVATE "-D${NSC_BUILD_TYPE}")
+target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/source"
+                                           PRIVATE "${PROJECT_SOURCE_DIR}/include")
+target_link_libraries(${PROJECT_NAME} m)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+                        OUTPUT_NAME nsc
+                        C_STANDARD 11
+                        C_STANDARD_REQUIRED ON)
+
+if(NSC_CXX_INTERFACE_SUPPORT)
+    add_library("${PROJECT_NAME}_cxx_interface" "source/numeral_system_converter.cpp")
+    target_link_libraries(${PROJECT_NAME} "${PROJECT_NAME}_cxx_interface")
+
+    set(NSC_CXX_TARGETS ${NSC_CXX_TARGETS}; ${PROJECT_NAME}_cxx_interface)
+endif()
+
+if(NSC_TEST)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    file(GLOB NSC_TESTS "test/*")
+
+    find_package(Qt5Test REQUIRED)
+
+    add_executable("test_${PROJECT_NAME}" "test/numeral_system_converter.cpp")
+    target_link_libraries("test_${PROJECT_NAME}" ${PROJECT_NAME} Qt5::Test)
+
+    set(NSC_CXX_TARGETS ${NSC_CXX_TARGETS}; test_${PROJECT_NAME})
+endif()
+
+foreach(target ${NSC_CXX_TARGETS})
+    set_target_properties(${target} PROPERTIES
+                            CXX_STANDARD 17
+                            CXX_STANDARD_REQUIRED ON)
+
+    target_include_directories(${target} PRIVATE "${PROJECT_SOURCE_DIR}/include")
+    target_sources(            ${target} PRIVATE "${PROJECT_SOURCE_DIR}/include/numeral_system_converter.h")
+endforeach()
 
 unset(NSC_EXECUTABLE CACHE)
-
-if(OFF) #temporary crutsch.
-    file(GLOB NSC_TEST_SOURCES "test/*.c")
-
-    add_executable(test_numeral_system_converter ${NSC_TEST_SOURCES} ${NSC_SOURCES} ${NSC_HEADERS})
-    target_compile_definitions(test_numeral_system_converter PUBLIC -DNSC_STATIC_LIBRARY)
-    target_include_directories(test_numeral_system_converter PUBLIC "${PROJECT_SOURCE_DIR}/include")
-
-    enable_testing()
-
-    #                     test_numeral_system_converter  in             {Int}   base    out      digits_count
-    add_test(nsc_test_i_1 test_numeral_system_converter "23234"         "Int"   "10"    "23234"     "10")
-    add_test(nsc_test_i_2 test_numeral_system_converter "-2323"         "Int"   "10"    "-2323"     "10")
-    add_test(nsc_test_i_3 test_numeral_system_converter "10110101100"   "Int"   "2"     "1452"      "2")
-    add_test(nsc_test_i_4 test_numeral_system_converter "-10110101100"  "Int"   "2"     "-1452"     "2")
-    add_test(nsc_test_i_5 test_numeral_system_converter "2654"          "Int"   "8"     "1452"      "8")
-    add_test(nsc_test_i_6 test_numeral_system_converter "-2654"         "Int"   "8"     "-1452"     "8")
-    add_test(nsc_test_i_7 test_numeral_system_converter "5AC"           "Int"   "16"    "1452"      "16")
-    add_test(nsc_test_i_8 test_numeral_system_converter "-5AC"          "Int"   "16"    "-1452"     "16")
-
-    #                     test_numeral_system_converter in          {Double}   base    out         digits_count
-    add_test(nsc_test_d_1 test_numeral_system_converter "23.45"     "Double"   "10"    "23.45"      "10")
-    add_test(nsc_test_d_2 test_numeral_system_converter "23.4542"   "Double"   "10"    "23.4542"    "10")
-    add_test(nsc_test_d_3 test_numeral_system_converter ".4542"     "Double"   "10"      ".4542"    "10")
-    add_test(nsc_test_d_4 test_numeral_system_converter "1.1110"    "Double"   "2"     "1.875"      "2")
-    add_test(nsc_test_d_5 test_numeral_system_converter "-1.111"    "Double"   "2"     "-1.875"     "2")
-
-    #                     test_numeral_system_converter in         {DComplex}      base_r  base_i  out_r   out_i  digits_count     
-    add_test(nsc_test_c_1 test_numeral_system_converter "23."      "DComplex"      "0"     "1"     "+3"    "2"    "10")
-    add_test(nsc_test_c_2 test_numeral_system_converter "230"      "DComplex"      "0"     "1"     "-2"    "3"    "10")
-    add_test(nsc_test_c_3 test_numeral_system_converter "-230"     "DComplex"      "0"     "1"      "2"   "-3"    "10")
-
-    set_tests_properties(nsc_test_i_1    nsc_test_d_1    nsc_test_c_1         
-                        nsc_test_i_2    nsc_test_d_2    nsc_test_c_2
-                        nsc_test_i_3    nsc_test_d_3    nsc_test_c_3
-                        nsc_test_i_4    nsc_test_d_4                                       
-                        nsc_test_i_5    nsc_test_d_5                                                                                    
-                        nsc_test_i_6                                                                                                    
-                        nsc_test_i_7                                                                                                    
-                        nsc_test_i_8                                                                                                    
-                                                                                
-                        PROPERTIES PASS_REGULAR_EXPRESSION "1"
-                                    FAIL_REGULAR_EXPRESSION "0"
-                                    TIMEOUT 1)
-endif()
+unset(NSC_TEST CACHE)
+unset(NSC_CXX_INTERFACE_SUPPORT CACHE)

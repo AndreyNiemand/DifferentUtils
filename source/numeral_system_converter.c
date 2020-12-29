@@ -1,3 +1,7 @@
+/*
+ * Implementation the main logic of the project: numeral-system-convecter.
+ *
+*/
 
 #include "numeral_system_converter.h"
 
@@ -27,9 +31,10 @@ NSC_IMPLEMENT nsc_number_t nsc_convert_toi(int base, int num)
 	unsigned i = 0;
 
 	num = abs(num);
+    base = abs(base);
 
 	do {
-		buf[i++] = num % base;
+        buf[i++] = (unsigned)(num % base);
 	} while ((num /= base));
 	
 	r.length = i;
@@ -75,9 +80,9 @@ NSC_IMPLEMENT nsc_number_t nsc_convert_toid(const int base, double num)
 
 		unsigned i = 0;
 		do {
-			buf[i++] = whole % base;
+            buf[i++] = whole % (unsigned)base;
 			assert(i < sizeof(buf)/sizeof(*buf));
-		} while ((whole /= base));
+        } while ((whole /= (unsigned)base));
 		
 		r.point_pos = i;
 
@@ -120,8 +125,8 @@ NSC_IMPLEMENT nsc_number_t nsc_convert_toid(const int base, double num)
 				fract--;
 			}
 
-			assert(round(base * fract) > 0.0 || fabs(round(base * fract)) < epsilon);
-			buf[i] = (unsigned) round(base * fract);
+            assert(round(base * fract) > 0.0 || fabs(round(base * fract)) < epsilon);
+            buf[i] = (unsigned) round(base * fract);
 		}
 
 		r.point_pos = i;
@@ -140,6 +145,7 @@ NSC_IMPLEMENT nsc_number_t nsc_convert_toid(const int base, double num)
 			buf[i] = (unsigned) whole;
 		}
 
+        assert(r.length > 0);
 		r.length = i;
 		r.buf = calloc(r.length, sizeof(*r.buf));
 
@@ -168,7 +174,7 @@ NSC_IMPLEMENT int nsc_convert_fromi(int base, nsc_number_t num)
 	for (unsigned i = 0; i < num.length; ++i)
 	{
 		unsigned power = num.length - (i + 1U);
-		result += (int)pow(base, power) * num.buf[i];
+        result += (int)(pow(base, power) * num.buf[i]);
 	}	
 
 	return result * (num.sign ? -1 : 1);
@@ -188,7 +194,7 @@ NSC_IMPLEMENT double nsc_convert_fromd(double base, nsc_number_t num)
 
 	return result * (num.sign ? -1.0 : 1.0);
 }
-
+/*
 NSC_IMPLEMENT _Dcomplex nsc_convert_fromdc(_Dcomplex base, nsc_number_t num)
 {
 	assert(num.buf != NULL);
@@ -210,12 +216,12 @@ NSC_IMPLEMENT _Dcomplex nsc_convert_fromdc(_Dcomplex base, nsc_number_t num)
 
 	return result;
 }
-
+*/
 static bool nsc_pasre_char(unsigned x, char* result)
 {
 	assert(result != NULL);
 
-	if (0 <= x && x <= 9)
+    if (x <= 9)
 	{
 		*result = (char)x + '0';
 		return true;
@@ -223,7 +229,7 @@ static bool nsc_pasre_char(unsigned x, char* result)
 	
 	if (0xA <= x && x <= 0xA + (int)('Z' - 'A'))
 	{
-		*result = 'A' + (x - 0xA);
+        *result = (char)('A' + (x - 0xA));
 		return true;
 	}
 	
@@ -239,13 +245,13 @@ static bool nsc_pasre_digit(char x, unsigned* result)
 
 	if ('A' <= x && x <= 'Z')
 	{
-		*result = x - 'A' + 10;
+        *result = (unsigned)(x - 'A' + 10);
 		return true;
 	}
 	
 	if ('0' <= x && x <= '9')
 	{
-		*result = x - '0';
+        *result = (unsigned)(x - '0');
 		return true;
 	}
 	
@@ -256,7 +262,7 @@ NSC_IMPLEMENT bool nsc_try_convert_fromi(int base, const char* str, unsigned dig
 {
 	assert(result != NULL);
 	assert(str != NULL);
-	assert(str[strnlen_s(str, 1024U)] == '\0');
+//	assert(str[strnlen_s(str, 1024U)] == '\0');
 
 	if (nsc_check(str, digits_count))
 	{
@@ -280,7 +286,7 @@ NSC_IMPLEMENT bool nsc_try_convert_fromd (double base, const char* str, unsigned
 {
 	assert(result != NULL);
 	assert(str != NULL);
-	assert(str[strnlen_s(str, 1024U)] == '\0');	
+    //assert(str[strnlen_s(str, 1024U)] == '\0');
 
 	if (nsc_check(str, digits_count))
 	{
@@ -299,7 +305,7 @@ NSC_IMPLEMENT bool nsc_try_convert_fromd (double base, const char* str, unsigned
 
 	return false;
 }
-
+/*
 NSC_IMPLEMENT bool nsc_try_convert_fromdc(_Dcomplex base, const char* str, unsigned digits_count, _Dcomplex* result)
 {
 	assert(result != NULL);
@@ -323,7 +329,7 @@ NSC_IMPLEMENT bool nsc_try_convert_fromdc(_Dcomplex base, const char* str, unsig
 
 	return false;
 }
-
+*/
 NSC_IMPLEMENT bool nsc_check(const char* str, unsigned digits_count)
 {
 	assert(str != NULL);
@@ -335,8 +341,7 @@ NSC_IMPLEMENT bool nsc_check(const char* str, unsigned digits_count)
 		case '-': i++; break;
 	}
 
-	bool foundPoint = false;
-	for (unsigned j = 0; str[i] != 0; ++i)
+    for (bool foundPoint = false; str[i] != 0; ++i)
 	{
 		unsigned val;
 		if (!foundPoint && str[i] == '.')
@@ -354,7 +359,7 @@ NSC_IMPLEMENT bool nsc_check(const char* str, unsigned digits_count)
 NSC_IMPLEMENT bool nsc_parse(const char* str, nsc_number_t* number)
 {	
 	assert(str != NULL);
-	assert(str[strnlen_s(str, 1024U)] == '\0');
+//	assert(str[strnlen_s(str, 1024U)] == '\0');
 	assert(number != NULL);
 	assert(number->buf != NULL);
 
@@ -364,8 +369,10 @@ NSC_IMPLEMENT bool nsc_parse(const char* str, nsc_number_t* number)
 	if (str[i] != 0)
 		switch(str[i])
 		{
-			case '+': number->sign = false; i++; break;
-			case '-': number->sign =  true; i++; break;
+        case '-': number->sign =  true; i++; break;
+        case '+': i++;
+        __attribute__((fallthrough));
+        default:  number->sign = false;  break;
 		}
 	
 	unsigned j = 0;
@@ -395,7 +402,7 @@ NSC_IMPLEMENT bool nsc_parse(const char* str, nsc_number_t* number)
 NSC_IMPLEMENT char* nsc_to_string(nsc_number_t num, char *buf)
 {
 	assert(buf != NULL);
-	assert(num.buf != NULL);
+    assert(num.buf != NULL);
 	
 	unsigned i = 0;
 

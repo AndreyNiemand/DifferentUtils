@@ -1,4 +1,4 @@
-/* 
+/*
  * Author: AndreyNiemand, https://github.com/AndreyNiemand. 2020. 
  *
  * The API allows to convert a number from any numeral system defiend in integers, 
@@ -12,40 +12,54 @@
 #ifndef NUMERAL_SYSTEM_CONVERTER_H
 #define NUMERAL_SYSTEM_CONVERTER_H
 
-#include <complex.h>
-#include <stdbool.h>
+#ifdef __cplusplus
+    #include <string_view>
+    #include <string>
+    #include <cstdlib>
+    #include <variant>
+
+    #define EXTERN extern "C"
+    #define NSC_NAMESPACE_BEGIN namespace nsc {
+    #define NSC_NAMESPACE_END   }
+#else
+    #include <complex.h>
+    #include <stdbool.h>
+
+    #define EXTERN extern
+    #define NSC_NAMESPACE_BEGIN
+    #define NSC_NAMESPACE_END
+#endif
 
 #ifdef WIN32
     #ifdef NSC_SHARED_LIBRARY
-        #define NSC_DECLARE(result_t, name, ...)                     \
-            __declspec(dllexport) result_t   name     (__VA_ARGS__); 
+        #define NSC_DECLARE(result_t, name, ...)                          \
+          EXTERN __declspec(dllexport) result_t   name     (__VA_ARGS__)
 
     #elif !defined(NSC_STATIC_LIBRARY) && !defined(NSC_EXECUTABLE)
-        #define NSC_DECLARE(result_t, name, ...)                     \
-            __declspec(dllimport) result_t   name     (__VA_ARGS__); \
-            typedef               result_t (*name##_t)(__VA_ARGS__);
+        #define NSC_DECLARE(result_t, name, ...)                          \
+          EXTERN __declspec(dllimport) result_t   name     (__VA_ARGS__); \
+                typedef               result_t (*name##_t)(__VA_ARGS__)
     #endif 
 #endif
 
 #ifndef NSC_DECLARE
-#define NSC_DECLARE(result_t, name, ...) result_t name (__VA_ARGS__);  
+#define NSC_DECLARE(result_t, name, ...) EXTERN result_t name (__VA_ARGS__)
 #endif 
 
-typedef struct nsc_number_t {
-	unsigned* buf;
-	unsigned point_pos;
-	unsigned length;
-	bool sign; // plus - false, minus - true;
-} nsc_number_t;
+NSC_NAMESPACE_BEGIN
 
-#ifndef __cplusplus
-#define nsc_number_t struct nsc_number_t
-#endif
+typedef struct nsc_number_t
+{
+    unsigned*      buf;
+    unsigned point_pos;
+    unsigned    length;
+    bool          sign; // plus - false, minus - true;
+} nsc_number_t;
 
 /* Converts a number from 'base' numerical system. */
 NSC_DECLARE(int      , nsc_convert_fromi , int        base, nsc_number_t);
 NSC_DECLARE(double   , nsc_convert_fromd , double     base, nsc_number_t);
-NSC_DECLARE(_Dcomplex, nsc_convert_fromdc,  _Dcomplex base, nsc_number_t);
+//NSC_DECLARE(_Dcomplex, nsc_convert_fromdc,  _Dcomplex base, NSC(number_t));
 
 /* Converts 'num' to 'base' numerical system. */
 NSC_DECLARE(nsc_number_t, nsc_convert_toi , int base,    int num);
@@ -61,7 +75,7 @@ NSC_DECLARE(nsc_number_t, nsc_convert_toid, int base, double num);
 */
 NSC_DECLARE(bool, nsc_try_convert_fromi ,       int base, const char* str, unsigned digits_count,       int* result);
 NSC_DECLARE(bool, nsc_try_convert_fromd ,    double base, const char* str, unsigned digits_count,    double* result);
-NSC_DECLARE(bool, nsc_try_convert_fromdc, _Dcomplex base, const char* str, unsigned digits_count, _Dcomplex* result);
+//NSC_DECLARE(bool, nsc_try_convert_fromdc, _Dcomplex base, const char* str, unsigned digits_count, _Dcomplex* result);
 
 /* 
     * Checks 'str' could be converted. 
@@ -93,4 +107,32 @@ NSC_DECLARE(bool, nsc_parse, const char* str, nsc_number_t* num);
 */
 NSC_DECLARE(char*, nsc_to_string, nsc_number_t, char *buf);
 
-#endif NUMERAL_SYSTEM_CONVERTER_H
+#ifdef __cplusplus
+
+class number_t
+{
+public:
+    number_t() = default;
+   ~number_t() = default;
+
+    number_t(number_t&&) = default;
+    number_t(const number_t&) = default;
+
+    number_t& operator=(number_t&&) = default;
+    number_t& operator=(const number_t&) = default;
+
+    explicit number_t(std::string_view num, int base);
+    number_t(int num);
+
+    std::string to_base (int base) const;
+    operator int() const;
+
+private:
+    std::variant<int, double> m_val;
+};
+
+#endif // __cplusplus
+
+NSC_NAMESPACE_END
+
+#endif //NUMERAL_SYSTEM_CONVERTER_H
